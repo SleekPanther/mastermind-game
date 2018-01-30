@@ -1,7 +1,7 @@
 import java.util.*;
 
-public class MastermindGame {
-	private static final String[] validColors = {"r","o","y","g","b"};
+public class MastermindGame {					//d=gold	b=blue		o=orange		k=blacK
+	private static final String[] validColors = {"d","y","w","r", "g","b","o","k"};//"r","o","y","g","b", "w"};
 	private Map<String, Integer> stringToIntegerColor = new HashMap<String, Integer>();
 	
 	private int[] hiddenCode = new int[4];
@@ -19,10 +19,21 @@ public class MastermindGame {
 
 	//Random number to create code, allows repeated colors
 	private void generateHiddenCode(){
-		for(int i=0; i<hiddenCode.length; i++){
-			hiddenCode[i] = (int)(Math.random() * validColors.length) ;
+//		for(int i=0; i<hiddenCode.length; i++){
+//			hiddenCode[i] = (int)(Math.random() * validColors.length) ;
+//		}
+		//Hack it to a specific color setting
+		hiddenCode = new int[]{0,1,2,3};
+		System.out.println("Hidden code: "+Arrays.toString(hiddenCode) + " = " + printCodeAsString(hiddenCode));
+	}
+
+	private String printCodeAsString(int[] code){
+		String codeString = "[";
+		for(int digit : code){
+			codeString += (validColors[digit] + "  ");
 		}
-		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
+		codeString += "]";
+		return codeString;
 	}
 
 	private void start(){
@@ -46,13 +57,12 @@ public class MastermindGame {
 			else{
 				System.out.println("Invalid Input, try again");
 			}
-			// System.out.println();
 		}
 	}
 
 	private boolean isValidGuessInput(String guess){
 		guess = guess.trim().replaceAll(" ", "");
-		return guess.length() == 4;		//maybe also check if it only contains valid colors
+		return guess.length() == 4;		//maybe also check if it only contains valid colors (&& guess.matches("^[stuff in valid characters]"))
 	}
 
 	private String[] convertGuessStringToArray(String guess){
@@ -60,7 +70,28 @@ public class MastermindGame {
 	}
 
 	private boolean isCorrectCode(String[] guess){
-		return false;
+		int correctLocationAndColorCount = 0;
+		int correctColorCount = 0;
+		ArrayList<Integer> finalizedIndices = new ArrayList<Integer>();
+		for(int i=0; i<guess.length; i++){
+			if(stringToIntegerColor.get(guess[i]) == hiddenCode[i]){
+				correctLocationAndColorCount++;
+				finalizedIndices.add(i);
+			}
+			else{
+				System.out.println("Finalized="+finalizedIndices);
+				for(int j=0; j<hiddenCode.length; j++){		//
+					if(!finalizedIndices.contains(j) && stringToIntegerColor.get(guess[i]) == hiddenCode[j]){		//only check indeces that aren't already correct
+						correctColorCount++;
+						finalizedIndices.add(j);
+					}
+				}
+			}
+		}
+
+		System.out.println("Correct location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorCount);
+
+		return correctLocationAndColorCount == hiddenCode.length;
 	}
 
 	
