@@ -28,7 +28,7 @@ public class MastermindGame {
 			hiddenCode[i] = validColors[randomIndexForColor];
 		}
 		//Hack it to a specific color setting
-		hiddenCode = new String[]{"w", "d", "k", "b"};
+		//hiddenCode = new String[]{"w", "d", "k", "b"};
 		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
 	}
 
@@ -54,6 +54,7 @@ public class MastermindGame {
 				System.out.println("Invalid Input, try again");
 			}
 		}
+		keyboard.close();
 
 		if(correct){
 			System.out.println("You win");
