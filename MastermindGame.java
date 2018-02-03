@@ -13,9 +13,13 @@ public class MastermindGame {
 	private String[] hiddenCode = new String[4];
 	private final int NUMBER_OF_TURNS = 10;
 	private String[][] guesses = new String[NUMBER_OF_TURNS][];
+	private int correctLocationAndColorCount = 0;
+	private int correctColorWrongPlaceCount = 0;
 
 
 	public MastermindGame(){
+		System.out.println("Mastermind colors: w=white, r=red, y=yellow, g=green, o=orange");
+		System.out.println("Enter 1 character for each color in the 4-digit code");
 		start();
 	}
 
@@ -35,37 +39,66 @@ public class MastermindGame {
 		//hiddenCode = new String[]{"k", "d", "r", "b"};
 		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
 	}
-
+	
 	private void start(){
-		generateHiddenCode();
-
-		System.out.print("Enter a 4-character guess for the code's colors");
-
 		Scanner keyboard = new Scanner(System.in);
 
-		boolean correct = false;
-		for(int i=0; i<NUMBER_OF_TURNS && !correct; ){
-			System.out.print("\nGuess: ");
-			String guess = keyboard.nextLine();
-			if(isValidGuessInput(guess)){
-				guesses[i] = convertGuessStringToArray(guess);
-				if(isCorrectCode(guesses[i])){
-					correct = true;
+		String gameMode = "";
+
+		boolean playAgain = true;
+		while(playAgain){
+			System.out.print("Choose game mode (player/computer): ");
+			gameMode = keyboard.next().replaceAll(" ", "");
+			if(gameMode.equals("player")){
+				generateHiddenCode();
+
+				System.out.print("Enter a 4-character guess for the code's colors");
+
+				keyboard.nextLine();	//clear buffer & move to next line
+
+				boolean correct = false;
+				for(int i=0; i<NUMBER_OF_TURNS && !correct; ){
+					System.out.print("\nGuess: ");
+					String guess = keyboard.nextLine();
+					if(isValidGuessInput(guess)){
+						guesses[i] = convertGuessStringToArray(guess);
+						if(isCorrectCode(guesses[i], gameMode)){
+							correct = true;
+						}
+						i++;	//only increment turn counter if is valid
+					}
+					else{
+						System.out.println("Invalid Input, try again");
+					}
 				}
-				i++;	//only increment turn counter if is valid
+
+				if(correct){
+					System.out.println("You win");
+				}
+				else{
+					System.out.println("\nSorry, you ran out of turns\n" + "The correct code was " + Arrays.toString(hiddenCode));
+				}
+			}
+			else if(gameMode.equals("computer")){
+				System.out.print("Enter a 4-digit code for computer to guess");
+				
 			}
 			else{
-				System.out.println("Invalid Input, try again");
+				System.out.println("Error. Please only enter \"player\" or \"computer\"");
+				continue;	//repeat loop asking for input
+			}
+
+			System.out.print("Play again? (y/n)");
+			if(keyboard.next().toLowerCase().equals("y")){
+				playAgain=true;
 			}
 		}
-		keyboard.close();
+		System.out.println("Goodbye");
 
-		if(correct){
-			System.out.println("You win");
-		}
-		else{
-			System.out.println("\nSorry, you ran out of turns\n" + "The correct code was " + Arrays.toString(hiddenCode));
-		}
+
+		
+
+		keyboard.close();
 	}
 
 	private boolean isValidGuessInput(String guess){
@@ -77,9 +110,9 @@ public class MastermindGame {
 		return guess.trim().replaceAll(" ", "").toLowerCase().split("");
 	}
 
-	private boolean isCorrectCode(String[] guess){
-		int correctLocationAndColorCount = 0;
-		int correctColorWrongPlaceCount = 0;
+	private boolean isCorrectCode(String[] guess, String mode){
+		correctLocationAndColorCount = 0;
+		correctColorWrongPlaceCount = 0;
 
 		ArrayList<Integer> finalizedIndices = new ArrayList<Integer>();
 		ArrayList<String> colorsAlreadySearched = new ArrayList<String>();
@@ -103,7 +136,9 @@ public class MastermindGame {
 			}
 		}
 
-		System.out.println("Correct location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+		if(mode.equals("player")){
+			System.out.println("Correct location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+		}
 
 		return correctLocationAndColorCount == hiddenCode.length;
 	}
