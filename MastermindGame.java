@@ -3,8 +3,6 @@ import java.util.*;
 public class MastermindGame {
 	private static final String[] validColors = {
 		"w",	//White
-		"d",	//golD
-		"k",	//blacK
 		"b",	//Blue
 		"r",	//Red
 		"y",	//Yellow
@@ -23,12 +21,18 @@ public class MastermindGame {
 
 	//Random number to create code, allows repeated colors
 	private void generateHiddenCode(){
-		for(int i=0; i<hiddenCode.length; i++){
+		ArrayList<String> usedColors = new ArrayList<String>();
+		for(int i=0; i<hiddenCode.length; ){
 			int randomIndexForColor = (int)(Math.random() * validColors.length);
-			hiddenCode[i] = validColors[randomIndexForColor];
+			String randomColor = validColors[randomIndexForColor];
+			if(!usedColors.contains(randomColor)){
+				hiddenCode[i] = randomColor;
+				usedColors.add(randomColor);
+				i++;
+			}			
 		}
 		//Hack it to a specific color setting
-		//hiddenCode = new String[]{"w", "d", "k", "b"};
+		//hiddenCode = new String[]{"k", "d", "r", "b"};
 		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
 	}
 
