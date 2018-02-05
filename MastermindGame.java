@@ -15,6 +15,8 @@ public class MastermindGame {
 	private String[][] guesses = new String[NUMBER_OF_TURNS][];
 	private int correctLocationAndColorCount = 0;
 	private int correctColorWrongPlaceCount = 0;
+	private int gameCount = 0;
+	private double guessesSum = 0;
 
 
 	public MastermindGame(){
@@ -60,6 +62,7 @@ public class MastermindGame {
 				for(int i=0; i<NUMBER_OF_TURNS && !correct; ){
 					System.out.print("\nGuess: ");
 					String guess = keyboard.nextLine();
+					guessesSum++;
 					if(isValidGuessInput(guess)){
 						guesses[i] = convertGuessStringToArray(guess);
 						if(isCorrectCode(guesses[i], gameMode)){
@@ -81,22 +84,22 @@ public class MastermindGame {
 			}
 			else if(gameMode.equals("computer")){
 				System.out.print("Enter a 4-digit code for computer to guess");
-				
+
 			}
 			else{
 				System.out.println("Error. Please only enter \"player\" or \"computer\"");
 				continue;	//repeat loop asking for input
 			}
 
-			System.out.print("Play again? (y/n)");
+			gameCount++;
+			System.out.println("Average guesses per game = "+getAverage());
+			System.out.print("Play again? (y/n) ");
+			playAgain=false;
 			if(keyboard.next().toLowerCase().equals("y")){
 				playAgain=true;
 			}
 		}
 		System.out.println("Goodbye");
-
-
-		
 
 		keyboard.close();
 	}
@@ -141,6 +144,10 @@ public class MastermindGame {
 		}
 
 		return correctLocationAndColorCount == hiddenCode.length;
+	}
+
+	private double getAverage(){
+		return Math.round(guessesSum/gameCount * 100) / 100;
 	}
 
 
