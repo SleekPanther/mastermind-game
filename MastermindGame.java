@@ -8,8 +8,9 @@ public class MastermindGame {
 		"y",	//Yellow
 		"g",	//Green
 		"o",	//Orange
-	};	
-	private String[] hiddenCode = new String[4];
+	};
+	private final int CODE_LENGTH = 4;
+	private String[] hiddenCode = new String[CODE_LENGTH];
 	private final int NUMBER_OF_TURNS = 12;
 	private String[][] guesses = new String[NUMBER_OF_TURNS][];
 	private int correctLocationAndColorCount = 0;
@@ -61,10 +62,8 @@ public class MastermindGame {
 				hiddenCode[i] = randomColor;
 				usedColors.add(randomColor);
 				i++;
-			}			
+			}
 		}
-		//Hack it to a specific color setting
-		//hiddenCode = new String[]{"k", "d", "r", "b"};
 		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
 	}
 	
@@ -77,24 +76,23 @@ public class MastermindGame {
 		boolean playAgain = true;
 		while(playAgain){
 			System.out.print("Choose game mode (player/computer): ");
-			gameMode = keyboard.next().replaceAll(" ", "").toLowerCase();
+			gameMode = sanitize(keyboard.next());
 			keyboard.nextLine();
 			while(!gameMode.equals("player") && !gameMode.equals("computer")){
 				System.out.println("Error. Please only enter \"player\" or \"computer\"");
-				gameMode = keyboard.next().replaceAll(" ", "").toLowerCase();
+				gameMode = sanitize(keyboard.next());
 			}
-			// gameMode = "player";
 
 			if(gameMode.equals("player")){
 				generateHiddenCode();
 				System.out.print("Enter a 4-character guess for the code's colors");
 			}
 			else{
-				System.out.print("Enter a 4-digit code for the computer to guess");
-				String code = keyboard.nextLine().replaceAll(" ", "").toLowerCase();
-				while(!isValidGuessInput(code)){
-					System.out.print("Invalid! Please enter a 4-digit code using valid colors: ");
-					code = keyboard.nextLine().replaceAll(" ", "").toLowerCase();
+				System.out.print("Enter a 4-digit code using distinct colors for the computer to guess: ");
+				String code = sanitize(keyboard.nextLine());
+				while(!isValueComputerCode(code)){
+					System.out.print("Invalid! Must be 4 characters, distinct & using valid colors: ");
+					code = sanitize(keyboard.nextLine());
 				}
 				hiddenCode = code.split("");
 			}
@@ -108,7 +106,7 @@ public class MastermindGame {
 					executeComputerGuess(turn, keyboard);
 				}
 
-				System.out.println("Correct location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+				System.out.println("\tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
 			}
 
 			if(won){
@@ -122,7 +120,7 @@ public class MastermindGame {
 			System.out.println("Average guesses per game = "+getAverage());
 			System.out.print("\nPlay again? (y/n) ");
 			playAgain=false;	//assume game will not repeat & ask for user input
-			if(keyboard.next().toLowerCase().equals("y")){
+			if(sanitize(keyboard.next()).charAt(0) == 'y'){
 				playAgain=true;
 			}
 		}
@@ -132,11 +130,11 @@ public class MastermindGame {
 	}
 
 	private void executeUserGuess(int turn, Scanner keyboard){
-		System.out.print("\nGuess #"+turn+": ");
-		String guess = keyboard.nextLine();
-		while(!isValidGuessInput(guess)){
+		System.out.print("Guess #"+turn+": ");
+		String guess = sanitize(keyboard.nextLine());
+		while(guess.length() != CODE_LENGTH){
 			System.out.print("Invalid! Guess must be 4 characters: ");
-			guess = keyboard.nextLine();
+			guess = sanitize(keyboard.nextLine());
 		}
 		guessesTotal++;
 		guesses[turn] = convertGuessStringToArray(guess);
@@ -161,7 +159,6 @@ public class MastermindGame {
 		//Save result from current guess to compare with all other remaining guesses
 		int previousCorrectCount=correctLocationAndColorCount;
 		int previousCloseCount=correctColorWrongPlaceCount;
-		System.out.println("\tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
 
 		for (int i = 0; i < availableComputerGuesses.size(); i++) {
 			previousCorrectCount=correctLocationAndColorCount;
@@ -172,15 +169,6 @@ public class MastermindGame {
 				availableComputerGuesses.remove(i--);	//remove guess & decrement I since removing from list shifts all items 1 index back
 			}
 		}
-	}
-
-	private boolean isValidGuessInput(String guess){
-		guess = guess.trim().replaceAll(" ", "");
-		return guess.length() == 4;		//maybe also check if it only contains valid colors (&& guess.matches("^[stuff in valid characters]"))
-	}
-
-	private String[] convertGuessStringToArray(String guess){
-		return guess.trim().replaceAll(" ", "").toLowerCase().split("");
 	}
 
 	private boolean isCorrectCode(String[] guess){
@@ -214,6 +202,39 @@ public class MastermindGame {
 
 	private double getAverage(){
 		return Math.round(guessesTotal/gameCount * 100) / 100;
+	}
+
+	private boolean isValueComputerCode(String code){
+		return code.length()==CODE_LENGTH && areColorsDistinct(code) && areValidColors(code);
+	}
+
+	private boolean areColorsDistinct(String guess){
+		Set<Character> seen = new HashSet<Character>();
+		for(char color : guess.toCharArray()) {
+			if (seen.contains(color)){
+				return false;
+			}
+			seen.add(color);
+		}
+		return true;
+	}
+
+	private boolean areValidColors(String code){
+		for(char color : code.toCharArray()) {
+			if(!Arrays.asList(validColors).contains(color+"")){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String[] convertGuessStringToArray(String guess){
+		return guess.trim().replaceAll(" ", "").toLowerCase().split("");
+	}
+
+	//Remove spaces, trim & convert to lowercase
+	private String sanitize(String input){
+		return input.trim().replaceAll(" ", "").toLowerCase();
 	}
 
 
