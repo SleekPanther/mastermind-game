@@ -18,11 +18,36 @@ public class MastermindGame {
 	private int gameCount = 0;
 	private double guessesSum = 0;
 
+	private ArrayList<String> availableComputerGuesses = new ArrayList<String>();		//6! factorial combinations
+	private String lastComputerMove = "";
+
 
 	public MastermindGame(){
 		System.out.println("Mastermind colors: w=white, r=red, y=yellow, g=green, o=orange");
 		System.out.println("Enter 1 character for each color in the 4-digit code");
+
+		availableComputerGuesses = generateAllPossibleGuesses();
+
 		start();
+	}
+
+	private ArrayList<String> generateAllPossibleGuesses(){
+		ArrayList<String> possibleGuesses = new ArrayList<String>();
+		for (int digit1 = 0; digit1 < validColors.length; digit1++){
+			for (int digit2 = 0; digit2 < validColors.length; digit2++){
+				for (int digit3 = 0; digit3 < validColors.length; digit3++){
+					for (int digit4 = 0; digit4 < validColors.length; digit4++) {
+						if (digit1 != digit2 && digit1 != digit3 && digit1 != digit4
+							   && digit2 != digit3 && digit2 != digit4
+								&& digit3 != digit4)
+						{
+							possibleGuesses.add(validColors[digit1] + validColors[digit2] + validColors[digit3] + validColors[digit4]);
+						}
+					}
+				}
+			}
+		}
+		return possibleGuesses;
 	}
 
 	//Random number to create code, allows repeated colors
@@ -83,7 +108,44 @@ public class MastermindGame {
 				}
 			}
 			else if(gameMode.equals("computer")){
-				System.out.print("Enter a 4-digit code for computer to guess");
+				// System.out.print("Enter a 4-digit code for computer to guess");
+				generateHiddenCode();
+
+				String repeat = "y";
+				while(repeat.equals("y")){
+					lastComputerMove = availableComputerGuesses.get((int) (Math.random()*availableComputerGuesses.size()) );
+					System.out.println("Computer guess="+lastComputerMove);
+					if(isCorrectCode(lastComputerMove.split(""), "computer")){
+						System.out.println("WON");
+						break;
+					}
+					else{
+						availableComputerGuesses.remove(lastComputerMove);
+						System.out.println("Computer guessed wrong, removed before loop: "+lastComputerMove);
+					}
+					int good=correctLocationAndColorCount;
+					int close=correctColorWrongPlaceCount;
+					System.out.println("Computer guess \tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+
+					for (int i = 0; i < availableComputerGuesses.size(); i++) {
+						good=correctLocationAndColorCount;
+						close=correctColorWrongPlaceCount;
+						String token = availableComputerGuesses.get(i);
+						if(isCorrectCode(token.split(""), "computer")){
+							System.out.println("\nGuessed it!");
+						}
+						System.out.println(i+": \ttoken="+token+"\tprevGood="+good+"\tright="+correctLocationAndColorCount+"\tprevClose="+close+"\tclose="+correctColorWrongPlaceCount);
+						if(correctLocationAndColorCount!=4 && (correctLocationAndColorCount!=good || correctColorWrongPlaceCount!=close) ){
+							System.out.println("\tRemoved i="+i+": "+token);
+							availableComputerGuesses.remove(i--);
+						}
+					}
+					System.out.println("available guesses left="+availableComputerGuesses.size());
+
+					System.out.println("Repeat? ");
+					repeat = keyboard.next();
+					keyboard.nextLine();
+				}
 
 			}
 			else{
