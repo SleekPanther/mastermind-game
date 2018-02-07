@@ -137,7 +137,7 @@ public class MastermindGame {
 			guess = sanitize(keyboard.nextLine());
 		}
 		guessesTotal++;
-		guesses[turn] = convertGuessStringToArray(guess);
+		guesses[turn] = guess.split("");
 		if(isCorrectCode(guesses[turn])){
 			won = true;
 		}
@@ -226,10 +226,6 @@ public class MastermindGame {
 			}
 		}
 		return true;
-	}
-
-	private String[] convertGuessStringToArray(String guess){
-		return guess.trim().replaceAll(" ", "").toLowerCase().split("");
 	}
 
 	//Remove spaces, trim & convert to lowercase
