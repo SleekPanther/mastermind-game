@@ -25,8 +25,7 @@ public class MastermindGame {
 
 
 	public MastermindGame(){
-		System.out.println("Enter 1 character for each color in the 4-digit code");
-
+		System.out.println("Mastermind");
 		start();
 	}
 
@@ -77,7 +76,7 @@ public class MastermindGame {
 			gameMode = sanitize(keyboard.next());
 			keyboard.nextLine();
 			while(!gameMode.equals("player") && !gameMode.equals("computer")){
-				System.out.print("Error. Please only enter \"player\" or \"computer\"");
+				System.out.print("Error. Please only enter \"player\" or \"computer\": ");
 				gameMode = sanitize(keyboard.next());
 				keyboard.nextLine();
 			}
@@ -175,8 +174,10 @@ public class MastermindGame {
 			//Remove all combinations that give a different response than the current guess (also skip the correct code & DO NOT remove it from remaining guesses)
 			if(!isCorrectCode(possibleGuess) && (correctLocationAndColorCount!=previousCorrectCount || correctColorWrongPlaceCount!=previousCloseCount) ){
 				availableComputerGuesses.remove(i--);	//remove guess & decrement I since removing from list shifts all items 1 index back
-			}  
+			}
 		}
+
+		isCorrectCode(lastComputerGuess);	//check original code to update global fields used in other functions (we evaluated all remaining guesses so if there is only 1 possiblity left, checking it will accidentally tell the method that called executeComputerGuess() to see that the code is correct)
 	}
 
 	private boolean isCorrectCode(String[] guess){
