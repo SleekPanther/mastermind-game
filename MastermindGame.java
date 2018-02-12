@@ -20,6 +20,7 @@ public class MastermindGame {
 	private double guessesTotal = 0;
 	private boolean providedHint = false;	//whether the user asked for a hint
 	private int currentHintIndex = 0;
+	private boolean quit = false;
 
 	private ArrayList<String[]> availableComputerGuesses = new ArrayList<String[]>();		//6! factorial combinations
 	private String[] lastComputerGuess;
@@ -62,7 +63,6 @@ public class MastermindGame {
 				i++;
 			}
 		}
-		System.out.println("Hidden code: "+Arrays.toString(hiddenCode));
 	}
 	
 	private void start(){
@@ -106,6 +106,9 @@ public class MastermindGame {
 			for(int turn=0; turn<NUMBER_OF_TURNS && !won; ){
 				if(gameMode.equals("player")){
 					executeUserGuess(turn, keyboard);
+					if(quit){
+						break;
+					}
 				}
 				else{
 					executeComputerGuess(turn, keyboard);
@@ -115,6 +118,11 @@ public class MastermindGame {
 					turn++;		//only increment turn if they DIDN't ask for a hint
 					System.out.println("\tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
 				}
+			}
+
+			if(quit){
+				System.out.println("Game quit, thanks for playing");
+				break;
 			}
 
 			if(won){
@@ -144,9 +152,13 @@ public class MastermindGame {
 		System.out.print("Guess #"+(turn+1)+": ");
 		String guess = sanitize(keyboard.nextLine());
 		providedHint = false;
+		quit=false;
 		if(guess.equals("h")){
 			providedHint=true;
 			provideHint();
+		}
+		else if(guess.equals("q")){
+			quit=true;
 		}
 		else{
 			while(guess.length() != CODE_LENGTH){
