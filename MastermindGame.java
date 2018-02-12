@@ -25,7 +25,6 @@ public class MastermindGame {
 
 
 	public MastermindGame(){
-		System.out.println("Mastermind colors: \tw=white, r=red, y=yellow, g=green, o=orange");
 		System.out.println("Enter 1 character for each color in the 4-digit code");
 
 		start();
@@ -135,6 +134,10 @@ public class MastermindGame {
 	}
 
 	private void executeUserGuess(int turn, Scanner keyboard){
+  
+                System.out.println("\nPress:");
+                System.out.println("w for white, r for red,   y for yellow");
+                System.out.println("b for blue,  g for green, o for orange");
 		System.out.print("Guess #"+(turn+1)+": ");
 		String guess = sanitize(keyboard.nextLine());
 		while(guess.length() != CODE_LENGTH){
@@ -172,7 +175,7 @@ public class MastermindGame {
 			//Remove all combinations that give a different response than the current guess (also skip the correct code & DO NOT remove it from remaining guesses)
 			if(!isCorrectCode(possibleGuess) && (correctLocationAndColorCount!=previousCorrectCount || correctColorWrongPlaceCount!=previousCloseCount) ){
 				availableComputerGuesses.remove(i--);	//remove guess & decrement I since removing from list shifts all items 1 index back
-			}
+			}  
 		}
 	}
 
