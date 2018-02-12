@@ -25,10 +25,8 @@ public class MastermindGame {
 
 
 	public MastermindGame(){
-		System.out.println("Mastermind colors: w=white, r=red, y=yellow, g=green, o=orange");
+		System.out.println("Mastermind colors: \tw=white, r=red, y=yellow, g=green, o=orange");
 		System.out.println("Enter 1 character for each color in the 4-digit code");
-
-		availableComputerGuesses = generateAllPossibleGuesses();
 
 		start();
 	}
@@ -76,18 +74,25 @@ public class MastermindGame {
 		boolean playAgain = true;
 		while(playAgain){
 			System.out.print("Choose game mode (player/computer): ");
+			String previousGameMode = gameMode;		//Save old mode to see if score statistics be reset
 			gameMode = sanitize(keyboard.next());
 			keyboard.nextLine();
 			while(!gameMode.equals("player") && !gameMode.equals("computer")){
-				System.out.println("Error. Please only enter \"player\" or \"computer\"");
+				System.out.print("Error. Please only enter \"player\" or \"computer\"");
 				gameMode = sanitize(keyboard.next());
+				keyboard.nextLine();
+			}
+			if(!previousGameMode.equals(gameMode)){		//Reset statistics if changing between computer/player game modes
+				guessesTotal=0;
+				gameCount=0;
 			}
 
 			if(gameMode.equals("player")){
 				generateHiddenCode();
 				System.out.print("Enter a 4-character guess for the code's colors");
 			}
-			else{
+			else{	//Computer guessing mode
+				availableComputerGuesses = generateAllPossibleGuesses();
 				System.out.print("Enter a 4-digit code using distinct colors for the computer to guess: ");
 				String code = sanitize(keyboard.nextLine());
 				while(!isValueComputerCode(code)){
@@ -130,7 +135,7 @@ public class MastermindGame {
 	}
 
 	private void executeUserGuess(int turn, Scanner keyboard){
-		System.out.print("Guess #"+turn+": ");
+		System.out.print("Guess #"+(turn+1)+": ");
 		String guess = sanitize(keyboard.nextLine());
 		while(guess.length() != CODE_LENGTH){
 			System.out.print("Invalid! Guess must be 4 characters: ");
@@ -147,7 +152,7 @@ public class MastermindGame {
 		guessesTotal++;
 		lastComputerGuess = availableComputerGuesses.get((int) (Math.random()*availableComputerGuesses.size()) );	//pick random from remaining possible guesses
 		guesses[turn] = lastComputerGuess;
-		System.out.print("Computer guess #"+turn+":  "+Arrays.toString(lastComputerGuess));
+		System.out.print("Computer guess #"+(turn+1)+":  "+Arrays.toString(lastComputerGuess));
 		if(isCorrectCode(lastComputerGuess)){
 			won = true;
 			return;
@@ -201,7 +206,7 @@ public class MastermindGame {
 	}
 
 	private double getAverage(){
-		return Math.round(guessesTotal/gameCount * 100) / 100;
+		return Math.round(guessesTotal/gameCount * 100.0) / 100.0;
 	}
 
 	private boolean isValueComputerCode(String code){
