@@ -18,6 +18,8 @@ public class MastermindGame {
 	private boolean won = false;
 	private int gameCount = 0;
 	private double guessesTotal = 0;
+	private boolean providedHint = false;	//whether the user asked for a hint
+	private int currentHintIndex = 0;
 
 	private ArrayList<String[]> availableComputerGuesses = new ArrayList<String[]>();		//6! factorial combinations
 	private String[] lastComputerGuess;
@@ -101,7 +103,7 @@ public class MastermindGame {
 			}
 
 			won = false;
-			for(int turn=0; turn<NUMBER_OF_TURNS && !won; turn++){
+			for(int turn=0; turn<NUMBER_OF_TURNS && !won; ){
 				if(gameMode.equals("player")){
 					executeUserGuess(turn, keyboard);
 				}
@@ -109,7 +111,10 @@ public class MastermindGame {
 					executeComputerGuess(turn, keyboard);
 				}
 
-				System.out.println("\tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+				if(!providedHint){
+					turn++;		//only increment turn if they DIDN't ask for a hint
+					System.out.println("\tCorrect location & Color = "+correctLocationAndColorCount + "\tCorrect Color, wrong location = "+correctColorWrongPlaceCount);
+				}
 			}
 
 			if(won){
@@ -133,20 +138,36 @@ public class MastermindGame {
 	}
 
 	private void executeUserGuess(int turn, Scanner keyboard){
-  
-                System.out.println("\nPress:");
-                System.out.println("w for white, r for red,   y for yellow");
-                System.out.println("b for blue,  g for green, o for orange");
+		System.out.println("\nPress:");
+		System.out.println("w for white, r for red,   y for yellow");
+		System.out.println("b for blue,  g for green, o for orange");
 		System.out.print("Guess #"+(turn+1)+": ");
 		String guess = sanitize(keyboard.nextLine());
-		while(guess.length() != CODE_LENGTH){
-			System.out.print("Invalid! Guess must be 4 characters: ");
-			guess = sanitize(keyboard.nextLine());
+		providedHint = false;
+		if(guess.equals("h")){
+			providedHint=true;
+			provideHint();
 		}
-		guessesTotal++;
-		guesses[turn] = guess.split("");
-		if(isCorrectCode(guesses[turn])){
-			won = true;
+		else{
+			while(guess.length() != CODE_LENGTH){
+				System.out.print("Invalid! Guess must be 4 characters: ");
+				guess = sanitize(keyboard.nextLine());
+			}
+			guessesTotal++;
+			guesses[turn] = guess.split("");
+			if(isCorrectCode(guesses[turn])){
+				won = true;
+			}
+		}
+	}
+
+	private void provideHint(){
+		System.out.println("Position "+(currentHintIndex+1)+" is: "+hiddenCode[currentHintIndex]);
+		if(currentHintIndex<CODE_LENGTH-1){
+			currentHintIndex++;
+		}
+		else{
+			System.out.println("(You've used up all the hints)");
 		}
 	}
 
