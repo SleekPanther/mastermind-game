@@ -120,20 +120,20 @@ public class MastermindGame {
 				}
 			}
 
-			if(quit){
-				System.out.println("Game quit, thanks for playing");
-				break;
-			}
-
 			if(won){
 				System.out.println("Correct Code!");
 			}
-			else{
+			else if(!quit){
 				System.out.println("\nRan out of turns\n" + "The correct code was " + Arrays.toString(hiddenCode));
 			}
 
 			gameCount++;
-			System.out.println("Average guesses per game = "+getAverage());
+			if(quit){
+				System.out.println("Game quit");
+			}
+			else{
+				System.out.println("Average guesses per game = "+getAverage());
+			}
 			System.out.print("\nPlay again? (y/n) ");
 			playAgain=false;	//assume game will not repeat & ask for user input
 			if(sanitize(keyboard.next()).charAt(0) == 'y'){
